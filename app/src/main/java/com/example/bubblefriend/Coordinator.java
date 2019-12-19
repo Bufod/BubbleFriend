@@ -6,6 +6,7 @@ import java.util.List;
 public class Coordinator implements Runnable {
     public Thread t;
     private List<Bubble> bubbles;
+    private boolean start = true;
 
     Coordinator() {
         bubbles = new ArrayList<>();
@@ -14,10 +15,19 @@ public class Coordinator implements Runnable {
 
     // вызывается при старте потока
     public void run() {
-        intersect();
-        clearBubbles();
+        while (start) {
+            intersect();
+            clearBubbles();
+        }
     }
 
+    public void start(){
+        this.start = true;
+        t.start();
+    }
+    public void stop(){
+        this.start = false;
+    }
     // добавление шаров
     public void addBubbles(Bubble bubble) {
         bubbles.add(bubble);
@@ -35,6 +45,8 @@ public class Coordinator implements Runnable {
         for (int i = 0, j = 1; i < n - 1; j++) {
             b1 = bubbles.get(i);
             b2 = bubbles.get(j);
+            if (b1 == null || b2 == null )
+                return;
             float dist = (float) (calcDist(b1, b2));
             if (dist < b1.radius + b2.radius) {
                 correctionTrajectory(b1, b2, dist);

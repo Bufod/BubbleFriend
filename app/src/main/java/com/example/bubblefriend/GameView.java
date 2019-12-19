@@ -16,10 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameView extends View {
-    private final int timerInterval = 50;
+    private final int timerInterval = 80;
     private List<Bubble> bubbles;
     Coordinator coordinator1, coordinator2, coordinator3, coordinator4;
-    boolean color, pause, move;
+    boolean color = true, pause, move;
     int maxRadius = 12, minRadius = 8;
     TextView tw;
     Context context;
@@ -88,6 +88,10 @@ public class GameView extends View {
         super.onDraw(canvas);
         if (bubbles.isEmpty()) {
             creationOfBubble(1000);
+            coordinator1.start();
+            coordinator2.start();
+            coordinator3.start();
+            coordinator4.start();
         }
         canvas.drawARGB(255, 0, 0, 0);
         for (Bubble bubble : bubbles) {
@@ -146,10 +150,13 @@ public class GameView extends View {
             }
 
             if (!bubbles.isEmpty()) {
-                coordinator1.t.start();
-                coordinator2.t.start();
-                coordinator3.t.start();
-                coordinator4.t.start();
+                if (!coordinator1.t.isAlive() &&
+                        !coordinator2.t.isAlive() &&
+                        !coordinator3.t.isAlive() &&
+                        !coordinator4.t.isAlive()) {
+
+                }
+
                 try {
                     for (Bubble bubble : bubbles) {
                         float posXCur = bubble.x, posYCur = bubble.y,
@@ -174,11 +181,12 @@ public class GameView extends View {
                                 bubble.setX(getWidth() - bubble.getRadius());
                         }
                     }
-                    coordinator1.t.join();
-                    coordinator2.t.join();
-                    coordinator3.t.join();
-                    coordinator4.t.join();
-                } catch (InterruptedException e) {
+                    coordinator1.stop();
+                    coordinator2.stop();
+                    coordinator3.stop();
+                    coordinator4.stop();
+                }
+                catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -210,9 +218,9 @@ public class GameView extends View {
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_UP:
-                if (!move)
-                    color = !color;
-                else {
+//                if (!move)
+//                    color = !color;
+//                else {
                     pause = true;
                     tmpXCoursor = event.getX();
                     int amount = (int) (Math.abs(tmpXCoursor - xCursor) / 10),
@@ -229,7 +237,7 @@ public class GameView extends View {
                     toast = Toast.makeText(getContext(),
                             Integer.toString(bubbles.size()), Toast.LENGTH_SHORT);
                     toast.show();
-                }
+//                }
                 break;
             case MotionEvent.ACTION_MOVE:
                 move = true;
